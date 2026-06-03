@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     r2_account_id: str = ""
     r2_access_key_id: str = ""
     r2_secret_access_key: str = ""
-    r2_bucket_name: str = ""
+    r2_bucket_name: str = "chicago-crimes-analytics"
     r2_endpoint_url: str = ""
 
     # DasgHub / MLflow
