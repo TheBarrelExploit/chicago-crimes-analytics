@@ -1,5 +1,6 @@
 import os
 from collections.abc import Iterator
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -36,8 +37,8 @@ def test_defaults() -> None:
         assert s.api_host == "0.0.0.0"
         assert s.api_port == 8000
         assert s.debug is False
-        assert s.base_path == "data"
-        assert s.models_path == "models"
+        assert s.base_path == Path("data")
+        assert s.models_path == Path("models")
 
 
 def test_r2_endpoint_url() -> None:
@@ -60,10 +61,10 @@ def test_custom_base_path() -> None:
     custom_env = {**FAKE_ENV, "BASE_PATH": "/custom/data"}
     with patch.dict(os.environ, custom_env, clear=True):
         s = load_settings()
-        assert s.base_path == "/custom/data"
-        assert s.raw_path == "/custom/data/raw"
-        assert s.processed_path == "/custom/data/processed"
-        assert s.checkpoints_path == "/custom/data/checkpoints"
+        assert s.base_path == Path("/custom/data")
+        assert s.raw_path == Path("/custom/data/raw")
+        assert s.processed_path == Path("/custom/data/processed")
+        assert s.checkpoints_path == Path("/custom/data/checkpoints")
 
 
 def test_custom_models_path() -> None:
@@ -71,7 +72,7 @@ def test_custom_models_path() -> None:
     custom_env = {**FAKE_ENV, "MODELS_PATH": "/custom/models"}
     with patch.dict(os.environ, custom_env, clear=True):
         s = load_settings()
-        assert s.models_path == "/custom/models"
+        assert s.models_path == Path("/custom/models")
 
 
 def test_custom_api_config() -> None:
