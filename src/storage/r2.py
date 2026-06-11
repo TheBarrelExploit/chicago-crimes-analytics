@@ -249,7 +249,7 @@ class R2BucketClient:
                 Filename=str(local_path),
                 Bucket=self._bucket,
                 Key=key,
-                ExtraArgs={**extra} or None,
+                ExtraArgs=cast(dict[str, Any], extra) if extra else None,
             )
             logger.info("Upload OK: %s", key)
         except ClientError as e:
@@ -315,12 +315,13 @@ class R2BucketClient:
             Este método convierte automáticamente bytes a BytesIO internamente.
             Si pasas un objeto file-like, se usa directamente sin copiar.
         """
+        fileobj: IO[bytes]
         if isinstance(data, bytes):
             if not data:
                 raise ValueError("Cannot upload empty bytes")
-            fileobj: IO[bytes] = io.BytesIO(data)
+            fileobj = io.BytesIO(data)
         elif hasattr(data, "read"):
-            fileobj: IO[bytes] = data
+            fileobj = data
         else:
             raise TypeError(f"Expected bytes or file-like, got {type(data)}")
 
