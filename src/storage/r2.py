@@ -249,7 +249,7 @@ class R2BucketClient:
                 Filename=str(local_path),
                 Bucket=self._bucket,
                 Key=key,
-                ExtraArgs=extra or None,
+                ExtraArgs={**extra} or None,
             )
             logger.info("Upload OK: %s", key)
         except ClientError as e:
@@ -335,7 +335,7 @@ class R2BucketClient:
         )
         try:
             self.client.upload_fileobj(
-                fileobj, self._bucket, key, ExtraArgs=extra or None
+                fileobj, self._bucket, key, ExtraArgs={**extra} or None
             )
             logger.info("Upload OK: %s", key)
         except ClientError as e:
