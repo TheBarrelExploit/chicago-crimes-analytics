@@ -16,7 +16,7 @@ import io
 import logging
 import types
 from pathlib import Path
-from typing import IO, NotRequired, TypedDict
+from typing import IO, Any, NotRequired, TypedDict, cast
 
 import boto3
 from botocore.config import Config
@@ -318,9 +318,9 @@ class R2BucketClient:
         if isinstance(data, bytes):
             if not data:
                 raise ValueError("Cannot upload empty bytes")
-            fileobj = io.BytesIO(data)
+            fileobj: IO[bytes] = io.BytesIO(data)
         elif hasattr(data, "read"):
-            fileobj = data
+            fileobj: IO[bytes] = data
         else:
             raise TypeError(f"Expected bytes or file-like, got {type(data)}")
 
@@ -335,7 +335,10 @@ class R2BucketClient:
         )
         try:
             self.client.upload_fileobj(
-                fileobj, self._bucket, key, ExtraArgs={**extra} or None
+                fileobj,
+                self._bucket,
+                key,
+                ExtraArgs=cast(dict[str, Any], extra) if extra else None,
             )
             logger.info("Upload OK: %s", key)
         except ClientError as e:
