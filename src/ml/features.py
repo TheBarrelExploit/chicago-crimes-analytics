@@ -116,7 +116,7 @@ def build_features(
 
 
 def build_single_record(
-    record: dict,
+    record: dict[str, object],
     le_primary: LabelEncoder,
     le_location: LabelEncoder,
 ) -> pd.DataFrame:

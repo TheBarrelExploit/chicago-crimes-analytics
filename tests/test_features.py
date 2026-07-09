@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import pickle
-import tempfile
 from pathlib import Path
 
 import duckdb
@@ -9,7 +7,6 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
-from sklearn.preprocessing import LabelEncoder
 
 from src.ml.features import (
     FBI_INDEX_CRIMES,
@@ -93,10 +90,9 @@ def test_build_features_is_night(parquet_path: Path) -> None:
 
 
 def test_build_single_record() -> None:
-    conn = duckdb.connect(":memory:")
-    import pyarrow.parquet as _pq
-    import pyarrow as _pa
     import tempfile
+
+    conn = duckdb.connect(":memory:")
     data = {
         "primary_type": ["THEFT", "BATTERY"],
         "location_description": ["STREET", "RESIDENCE"],
@@ -112,7 +108,7 @@ def test_build_single_record() -> None:
         "arrest": [True, False],
     }
     with tempfile.NamedTemporaryFile(suffix=".parquet", delete=False) as f:
-        _pq.write_table(_pa.Table.from_pandas(pd.DataFrame(data)), f.name)
+        pq.write_table(pa.Table.from_pandas(pd.DataFrame(data)), f.name)
         _, _, le_primary, le_location = build_features(f.name, conn)
 
     record = {
