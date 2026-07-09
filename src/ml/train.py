@@ -7,10 +7,13 @@ import os
 import pickle
 import tempfile
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import modal
-import optuna
-import pandas as pd
+
+if TYPE_CHECKING:
+    import optuna
+    import pandas as pd
 
 logger = logging.getLogger(__name__)
 
@@ -59,15 +62,17 @@ def _optuna_objective(
     trial: optuna.Trial,
     X: pd.DataFrame,  # noqa: N803
     y: pd.Series,
-    parent_run_id: str,
 ) -> float:
-    """Optuna objective: trains one XGBClassifier and logs to MLflow child run."""
+    """Optuna objective: trains one XGBClassifier and logs to MLflow child run.
+
+    Called from within an active MLflow parent run — creates a nested child run.
+    """
     import mlflow
     from sklearn.metrics import roc_auc_score
     from sklearn.model_selection import StratifiedKFold, cross_val_predict
     from xgboost import XGBClassifier
 
-    params: dict = {
+    params: dict[str, object] = {
         "max_depth": trial.suggest_int("max_depth", 3, 10),
         "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.3, log=True),
         "n_estimators": trial.suggest_int("n_estimators", 100, 500),
@@ -85,10 +90,9 @@ def _optuna_objective(
         "random_state": 42,
     }
 
-    with (
-        mlflow.start_run(run_id=parent_run_id),
-        mlflow.start_run(run_name=f"trial_{trial.number}", nested=True),
-    ):
+    # Parent run is already active (called from within retrain's with-block).
+    # We only need to open the nested child run here.
+    with mlflow.start_run(run_name=f"trial_{trial.number}", nested=True):
         mlflow.log_params({k: v for k, v in params.items()
                            if k not in {"objective", "eval_metric", "tree_method",
                                         "device", "use_label_encoder", "random_state"}})
@@ -154,13 +158,13 @@ def retrain(force: bool = False) -> dict:
     )
 
     # 3. Optuna study with MLflow parent run
-    with mlflow.start_run(run_name="optuna_study") as parent_run:
+    with mlflow.start_run(run_name="optuna_study"):
         mlflow.log_params({"n_trials": 30, "force": force})
         mlflow.log_dict(drift_report, "drift_report.json")
 
         study = _optuna.create_study(direction="maximize")
         study.optimize(
-            lambda trial: _optuna_objective(trial, X_train, y_train, parent_run.info.run_id),
+            lambda trial: _optuna_objective(trial, X_train, y_train),
             n_trials=30,
             show_progress_bar=False,
         )
