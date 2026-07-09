@@ -60,11 +60,8 @@ def test_predict_calls_booster_predict(sample_record: dict) -> None:
 
     with patch("src.ml.predict.load_production_model",
                return_value=(mock_booster, le_primary, le_location)):
-        import importlib
-
-        import src.ml.predict as predict_mod
-        importlib.reload(predict_mod)
-        predict_mod.predict_arrest_probability(sample_record)
+        from src.ml.predict import predict_arrest_probability
+        predict_arrest_probability(sample_record)
 
     mock_booster.predict.assert_called_once()
 

@@ -4,9 +4,7 @@ from __future__ import annotations
 
 import logging
 import pickle
-import sys
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import mlflow
 import mlflow.xgboost
@@ -15,9 +13,6 @@ import xgboost as xgb
 from sklearn.preprocessing import LabelEncoder
 
 from src.ml.features import FEATURE_COLS, build_single_record
-
-if TYPE_CHECKING:
-    pass
 
 logger = logging.getLogger(__name__)
 
@@ -60,22 +55,10 @@ def _load_model_uncached() -> tuple[xgb.Booster, LabelEncoder, LabelEncoder]:
     return booster, le_primary, le_location
 
 
-# Preserve the cached loader across importlib.reload() calls (e.g. during
-# testing inside a patch context).  On the very first import the attribute does
-# not exist yet, so we define it normally.  On subsequent reloads we reuse
-# whatever is already bound in the module namespace — which may be a unittest
-# mock when the module is reloaded inside a ``with patch(...)`` block.
-_current_module = sys.modules.get(__name__)
-if _current_module is None or not hasattr(_current_module, "load_production_model"):
-
-    @st.cache_resource(ttl=3600)
-    def load_production_model() -> tuple[xgb.Booster, LabelEncoder, LabelEncoder]:
-        """Cached wrapper for Streamlit — reloads every hour."""
-        return _load_model_uncached()
-
-else:
-    # Re-use the existing binding (mock or real cached function).
-    load_production_model = _current_module.load_production_model  # type: ignore[assignment]
+@st.cache_resource(ttl=3600)
+def load_production_model() -> tuple[xgb.Booster, LabelEncoder, LabelEncoder]:
+    """Cached wrapper for Streamlit — reloads every hour."""
+    return _load_model_uncached()
 
 
 def predict_arrest_probability(record: dict[str, object]) -> float:
