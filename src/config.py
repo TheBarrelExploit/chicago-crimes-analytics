@@ -74,6 +74,13 @@ class Settings(BaseSettings):
     dagshub_token: SecretStr = Field(description="Token DagsHub")
     mlflow_tracking_uri: SecretStr = Field(description="MLflow tracking URI en DagsHub")
 
+    # --- MotherDuck ---
+    motherduck_token: SecretStr = Field(description="MotherDuck authentication token")
+    motherduck_database: str = Field(
+        default="chicago_crimes",
+        description="MotherDuck database name",
+    )
+
     # --- Modal ---
     modal_token_id: SecretStr = Field(description="Token ID Modal")
     modal_token_secret: SecretStr = Field(description="Secret Token Modal")
@@ -144,4 +151,4 @@ def load_settings() -> Settings:
         archivo .env, Pydantic lanzará un error de validación,
         para generar test se deberia utilizar load_settings.cache_clear()
     """
-    return Settings()
+    return Settings()  # type: ignore[call-arg]
