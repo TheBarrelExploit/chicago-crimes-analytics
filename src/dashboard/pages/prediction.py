@@ -19,9 +19,7 @@ _CHICAGO_LAT = 41.8781
 _CHICAGO_LON = -87.6298
 
 
-def _get_area_centroid(
-    manager: DuckDBManager, area_code: int
-) -> tuple[float, float]:
+def _get_area_centroid(manager: DuckDBManager, area_code: int) -> tuple[float, float]:
     """Returns approximate (lat, lon) centroid for a community area."""
     try:
         import polars as pl
@@ -29,7 +27,10 @@ def _get_area_centroid(
         df = manager.get_heatmap_data(2020, 2025)
         filtered = df.filter(pl.col("community_area").cast(pl.Utf8) == str(area_code))
         if len(filtered) > 0:
-            return (float(filtered["lat_centroid"][0]), float(filtered["lon_centroid"][0]))
+            return (
+                float(filtered["lat_centroid"][0]),
+                float(filtered["lon_centroid"][0]),
+            )
     except Exception:
         pass
     return (_CHICAGO_LAT, _CHICAGO_LON)
@@ -53,16 +54,23 @@ def _arrest_gauge(probability: float) -> go.Figure:
             value=pct,
             number={
                 "suffix": "%",
-                "font": {"size": 36, "color": "#F1FAEE",
-                         "family": "IBM Plex Mono, monospace"},
+                "font": {
+                    "size": 36,
+                    "color": "#F1FAEE",
+                    "family": "IBM Plex Mono, monospace",
+                },
             },
             title={
                 "text": f"Probabilidad de Arresto — <b>{badge}</b>",
                 "font": {"size": 14, "color": "#8D99AE"},
             },
             gauge={
-                "axis": {"range": [0, 100], "tickwidth": 1,
-                         "tickcolor": "#8D99AE", "tickfont": {"size": 10}},
+                "axis": {
+                    "range": [0, 100],
+                    "tickwidth": 1,
+                    "tickcolor": "#8D99AE",
+                    "tickfont": {"size": 10},
+                },
                 "bar": {"color": color, "thickness": 0.3},
                 "bgcolor": "rgba(255,255,255,0.04)",
                 "borderwidth": 0,
@@ -109,8 +117,9 @@ def render(manager: DuckDBManager) -> None:
     col_form, col_result = st.columns([1, 1], gap="large")
 
     with col_form:
-        st.markdown("<p class='section-title'>Parámetros del crimen</p>",
-                    unsafe_allow_html=True)
+        st.markdown(
+            "<p class='section-title'>Parámetros del crimen</p>", unsafe_allow_html=True
+        )
         primary_type = st.selectbox(
             "Tipo de crimen", crime_types, disabled=not model_available, key="pred_type"
         )
@@ -121,20 +130,35 @@ def render(manager: DuckDBManager) -> None:
             "Community Area", area_names, disabled=not model_available, key="pred_area"
         )
         district = st.number_input(
-            "Distrito", min_value=1, max_value=25, value=1,
-            disabled=not model_available, key="pred_district",
+            "Distrito",
+            min_value=1,
+            max_value=25,
+            value=1,
+            disabled=not model_available,
+            key="pred_district",
         )
         beat = st.number_input(
-            "Beat", min_value=100, max_value=2500, value=100, step=1,
-            disabled=not model_available, key="pred_beat",
+            "Beat",
+            min_value=100,
+            max_value=2500,
+            value=100,
+            step=1,
+            disabled=not model_available,
+            key="pred_beat",
         )
         hour = st.slider(
-            "Hora del día", min_value=0, max_value=23, value=12,
-            disabled=not model_available, key="pred_hour",
+            "Hora del día",
+            min_value=0,
+            max_value=23,
+            value=12,
+            disabled=not model_available,
+            key="pred_hour",
         )
         domestic = st.toggle(
-            "¿Crimen doméstico?", value=False,
-            disabled=not model_available, key="pred_domestic",
+            "¿Crimen doméstico?",
+            value=False,
+            disabled=not model_available,
+            key="pred_domestic",
         )
         crime_date = st.date_input(
             "Fecha del crimen",
@@ -176,7 +200,7 @@ def render(manager: DuckDBManager) -> None:
                 probability = predict_arrest_probability(record)
                 st.plotly_chart(
                     _arrest_gauge(probability),
-                    use_container_width=True,
+                    width="stretch",
                     config={"displayModeBar": False},
                 )
             except Exception as exc:
