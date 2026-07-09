@@ -11,24 +11,26 @@ _LOCATIONS = ["STREET", "RESIDENCE", "APARTMENT", "SIDEWALK", "PARKING LOT"]
 
 def _make_df(n: int = 200, seed: int = 0) -> pd.DataFrame:
     rng = np.random.default_rng(seed)
-    return pd.DataFrame({
-        "primary_type": rng.choice(_CRIME_TYPES, n),
-        "location_description": rng.choice(_LOCATIONS, n),
-        "domestic_int": rng.integers(0, 2, n),
-        "Year": rng.integers(2018, 2024, n),
-        "hour": rng.integers(0, 24, n),
-        "District": rng.integers(1, 25, n),
-        "Community Area": rng.integers(1, 77, n),
-        "Latitude": rng.uniform(41.6, 42.0, n),
-        "Beat": rng.integers(100, 2500, n),
-        "Longitude": rng.uniform(-87.9, -87.5, n),
-        "month": rng.integers(1, 13, n),
-        "quarter": rng.integers(1, 5, n),
-        "weekday": rng.integers(0, 7, n),
-        "is_index_crime": rng.integers(0, 2, n),
-        "is_night": rng.integers(0, 2, n),
-        "is_weekend": rng.integers(0, 2, n),
-    })
+    return pd.DataFrame(
+        {
+            "primary_type": rng.choice(_CRIME_TYPES, n),
+            "location_description": rng.choice(_LOCATIONS, n),
+            "domestic_int": rng.integers(0, 2, n),
+            "Year": rng.integers(2018, 2024, n),
+            "hour": rng.integers(0, 24, n),
+            "District": rng.integers(1, 25, n),
+            "Community Area": rng.integers(1, 77, n),
+            "Latitude": rng.uniform(41.6, 42.0, n),
+            "Beat": rng.integers(100, 2500, n),
+            "Longitude": rng.uniform(-87.9, -87.5, n),
+            "month": rng.integers(1, 13, n),
+            "quarter": rng.integers(1, 5, n),
+            "weekday": rng.integers(0, 7, n),
+            "is_index_crime": rng.integers(0, 2, n),
+            "is_night": rng.integers(0, 2, n),
+            "is_weekend": rng.integers(0, 2, n),
+        }
+    )
 
 
 def test_no_drift_identical_distributions() -> None:

@@ -43,7 +43,9 @@ def _render_filter_bar(
         c1, c2, c3, c4, c5 = st.columns([2.4, 1.5, 1.5, 1.2, 0.7])
 
         with c1:
-            st.markdown('<div class="filter-label">Rango de años</div>', unsafe_allow_html=True)
+            st.markdown(
+                '<div class="filter-label">Rango de años</div>', unsafe_allow_html=True
+            )
             year_range: tuple[int, int] = st.slider(
                 "Años",
                 2001,
@@ -54,7 +56,9 @@ def _render_filter_bar(
             )
 
         with c2:
-            st.markdown('<div class="filter-label">Community Area</div>', unsafe_allow_html=True)
+            st.markdown(
+                '<div class="filter-label">Community Area</div>', unsafe_allow_html=True
+            )
             area_name: str = st.selectbox(
                 "Área",
                 ["Todas"] + community_areas,
@@ -64,7 +68,9 @@ def _render_filter_bar(
             )
 
         with c3:
-            st.markdown('<div class="filter-label">Tipo de crimen</div>', unsafe_allow_html=True)
+            st.markdown(
+                '<div class="filter-label">Tipo de crimen</div>', unsafe_allow_html=True
+            )
             crime_type: str = st.selectbox(
                 "Tipo",
                 ["Todos"] + crime_types,
@@ -74,7 +80,9 @@ def _render_filter_bar(
             )
 
         with c4:
-            st.markdown('<div class="filter-label">Doméstico</div>', unsafe_allow_html=True)
+            st.markdown(
+                '<div class="filter-label">Doméstico</div>', unsafe_allow_html=True
+            )
             domestic: str = st.selectbox(
                 "Doméstico",
                 ["Todos", "Sí", "No"],
@@ -109,7 +117,9 @@ def _render_trends(
     domestic: bool | None = None,
 ) -> None:
     """Gráfico dual eje: barras crímenes + línea tasa arresto."""
-    df = manager.get_crimes_by_year(year_start, year_end, community_area, primary_type, domestic)
+    df = manager.get_crimes_by_year(
+        year_start, year_end, community_area, primary_type, domestic
+    )
 
     fig = make_subplots(specs=[[{"secondary_y": True}]])
     fig.add_trace(
@@ -194,11 +204,13 @@ def render(manager: DuckDBManager) -> None:
         render_mapa(manager, year_start, year_end)
 
     with col_trend, st.container(border=True):
-            st.markdown(
-                "<p class='section-title'>Crímenes y Tasa de Arresto por Año</p>",
-                unsafe_allow_html=True,
-            )
-            _render_trends(manager, year_start, year_end, area_filter, type_filter, dom_bool)
+        st.markdown(
+            "<p class='section-title'>Crímenes y Tasa de Arresto por Año</p>",
+            unsafe_allow_html=True,
+        )
+        _render_trends(
+            manager, year_start, year_end, area_filter, type_filter, dom_bool
+        )
 
     st.markdown("<div style='margin-top:10px'></div>", unsafe_allow_html=True)
 

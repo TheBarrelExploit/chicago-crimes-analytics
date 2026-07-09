@@ -47,7 +47,9 @@ def _arrow(**columns: list[Any]) -> pa.Table:
     return pa.table({k: pa.array(v) for k, v in columns.items()})
 
 
-def _mock_conn(*, arrow: pa.Table | None = None, row: tuple[Any, ...] | None = None) -> MagicMock:
+def _mock_conn(
+    *, arrow: pa.Table | None = None, row: tuple[Any, ...] | None = None
+) -> MagicMock:
     """Crea un mock de DuckDBPyConnection preconfigurado."""
     conn = MagicMock()
     exec_ret = conn.execute.return_value
@@ -208,26 +210,36 @@ class TestGetKpis:
     def test_returns_expected_keys(self, manager: DuckDBManager) -> None:
         conn = _mock_conn(row=(1000, 200, 100, 20.0))
         with patch(
-            "src.storage.duckdb_manager.motherduck_connection", return_value=_md_ctx(conn)
+            "src.storage.duckdb_manager.motherduck_connection",
+            return_value=_md_ctx(conn),
         ):
             result = manager.get_kpis(2010, 2020)
 
-        assert set(result) == {"total_crimes", "total_arrests", "total_domestic", "arrest_rate"}
+        assert set(result) == {
+            "total_crimes",
+            "total_arrests",
+            "total_domestic",
+            "arrest_rate",
+        }
 
     def test_null_row_values_default_to_zero(self, manager: DuckDBManager) -> None:
         conn = _mock_conn(row=(None, None, None, None))
         with patch(
-            "src.storage.duckdb_manager.motherduck_connection", return_value=_md_ctx(conn)
+            "src.storage.duckdb_manager.motherduck_connection",
+            return_value=_md_ctx(conn),
         ):
             result = manager.get_kpis(2010, 2020)
 
         assert result["total_crimes"] == 0
         assert result["arrest_rate"] == 0.0
 
-    def test_todas_sentinel_excludes_community_filter(self, manager: DuckDBManager) -> None:
+    def test_todas_sentinel_excludes_community_filter(
+        self, manager: DuckDBManager
+    ) -> None:
         conn = _mock_conn(row=(500, 50, 25, 10.0))
         with patch(
-            "src.storage.duckdb_manager.motherduck_connection", return_value=_md_ctx(conn)
+            "src.storage.duckdb_manager.motherduck_connection",
+            return_value=_md_ctx(conn),
         ):
             manager.get_kpis(2010, 2020, community_area=ALL_AREAS_SENTINEL)
 
@@ -238,7 +250,8 @@ class TestGetKpis:
     def test_community_area_filter_applied(self, manager: DuckDBManager) -> None:
         conn = _mock_conn(row=(100, 10, 5, 10.0))
         with patch(
-            "src.storage.duckdb_manager.motherduck_connection", return_value=_md_ctx(conn)
+            "src.storage.duckdb_manager.motherduck_connection",
+            return_value=_md_ctx(conn),
         ):
             manager.get_kpis(2010, 2020, community_area="LINCOLN PARK")
 
@@ -248,7 +261,8 @@ class TestGetKpis:
     def test_year_params_passed_to_query(self, manager: DuckDBManager) -> None:
         conn = _mock_conn(row=(100, 10, 5, 10.0))
         with patch(
-            "src.storage.duckdb_manager.motherduck_connection", return_value=_md_ctx(conn)
+            "src.storage.duckdb_manager.motherduck_connection",
+            return_value=_md_ctx(conn),
         ):
             manager.get_kpis(2015, 2022)
 
@@ -277,7 +291,8 @@ class TestGetCrimesByYear:
     def test_returns_polars_dataframe(self, manager: DuckDBManager) -> None:
         conn = _mock_conn(arrow=self._TABLE)
         with patch(
-            "src.storage.duckdb_manager.motherduck_connection", return_value=_md_ctx(conn)
+            "src.storage.duckdb_manager.motherduck_connection",
+            return_value=_md_ctx(conn),
         ):
             df = manager.get_crimes_by_year(2020, 2021)
 
@@ -286,7 +301,8 @@ class TestGetCrimesByYear:
     def test_todas_sentinel_excluded_from_filter(self, manager: DuckDBManager) -> None:
         conn = _mock_conn(arrow=self._TABLE)
         with patch(
-            "src.storage.duckdb_manager.motherduck_connection", return_value=_md_ctx(conn)
+            "src.storage.duckdb_manager.motherduck_connection",
+            return_value=_md_ctx(conn),
         ):
             manager.get_crimes_by_year(2020, 2021, community_area=ALL_AREAS_SENTINEL)
 
@@ -297,7 +313,8 @@ class TestGetCrimesByYear:
     def test_community_area_added_to_params(self, manager: DuckDBManager) -> None:
         conn = _mock_conn(arrow=self._TABLE)
         with patch(
-            "src.storage.duckdb_manager.motherduck_connection", return_value=_md_ctx(conn)
+            "src.storage.duckdb_manager.motherduck_connection",
+            return_value=_md_ctx(conn),
         ):
             manager.get_crimes_by_year(2020, 2021, community_area="HYDE PARK")
 
@@ -324,7 +341,8 @@ class TestGetCrimesByHour:
     def test_year_params_passed_to_sql(self, manager: DuckDBManager) -> None:
         conn = _mock_conn(arrow=self._TABLE)
         with patch(
-            "src.storage.duckdb_manager.motherduck_connection", return_value=_md_ctx(conn)
+            "src.storage.duckdb_manager.motherduck_connection",
+            return_value=_md_ctx(conn),
         ):
             manager.get_crimes_by_hour(2018, 2022)
 
@@ -334,7 +352,8 @@ class TestGetCrimesByHour:
     def test_returns_polars_dataframe(self, manager: DuckDBManager) -> None:
         conn = _mock_conn(arrow=self._TABLE)
         with patch(
-            "src.storage.duckdb_manager.motherduck_connection", return_value=_md_ctx(conn)
+            "src.storage.duckdb_manager.motherduck_connection",
+            return_value=_md_ctx(conn),
         ):
             df = manager.get_crimes_by_hour(2018, 2022)
 
@@ -360,7 +379,8 @@ class TestGetCrimesByType:
     def test_top_n_passed_to_query(self, manager: DuckDBManager) -> None:
         conn = _mock_conn(arrow=self._TABLE)
         with patch(
-            "src.storage.duckdb_manager.motherduck_connection", return_value=_md_ctx(conn)
+            "src.storage.duckdb_manager.motherduck_connection",
+            return_value=_md_ctx(conn),
         ):
             manager.get_crimes_by_type(top_n=5)
 
@@ -388,7 +408,8 @@ class TestGetHeatmapData:
     def test_year_params_passed(self, manager: DuckDBManager) -> None:
         conn = _mock_conn(arrow=self._TABLE)
         with patch(
-            "src.storage.duckdb_manager.motherduck_connection", return_value=_md_ctx(conn)
+            "src.storage.duckdb_manager.motherduck_connection",
+            return_value=_md_ctx(conn),
         ):
             manager.get_heatmap_data(2015, 2020)
 
@@ -532,9 +553,7 @@ class TestRefreshYear:
         ):
             manager.refresh_year(2023)
 
-        delete_calls = [
-            c for c in conn.execute.call_args_list if "DELETE" in c.args[0]
-        ]
+        delete_calls = [c for c in conn.execute.call_args_list if "DELETE" in c.args[0]]
         for dc in delete_calls:
             assert dc.args[1] == [2023]
 
@@ -581,9 +600,7 @@ class TestHealthCheck:
 
         md_conn = MagicMock()
         with (
-            patch(
-                "src.storage.duckdb_manager.r2_connection", return_value=failing_ctx
-            ),
+            patch("src.storage.duckdb_manager.r2_connection", return_value=failing_ctx),
             patch(
                 "src.storage.duckdb_manager.motherduck_connection",
                 return_value=_md_ctx(md_conn),
@@ -623,9 +640,7 @@ class TestHealthCheck:
         failing_ctx.__exit__ = MagicMock(return_value=False)
 
         with (
-            patch(
-                "src.storage.duckdb_manager.r2_connection", return_value=failing_ctx
-            ),
+            patch("src.storage.duckdb_manager.r2_connection", return_value=failing_ctx),
             patch(
                 "src.storage.duckdb_manager.motherduck_connection",
                 return_value=failing_ctx,

@@ -99,6 +99,7 @@ def _warmup_model() -> None:
     """Carga el modelo de producción al inicio para que no haya espera en la pestaña ML."""
     try:
         from src.ml.predict import load_production_model
+
         load_production_model()
     except Exception:
         pass  # Si el modelo no está registrado, se mostrará el error en la página

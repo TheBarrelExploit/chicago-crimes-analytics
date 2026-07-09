@@ -73,11 +73,13 @@ def upload_initial_model() -> None:
 
     # Register to MLflow
     with mlflow.start_run(run_name="initial_upload") as run:
-        mlflow.log_metrics({
-            "roc_auc_test": 0.8955,
-            "accuracy": 0.8477,
-            "f1": 0.7071,
-        })
+        mlflow.log_metrics(
+            {
+                "roc_auc_test": 0.8955,
+                "accuracy": 0.8477,
+                "f1": 0.7071,
+            }
+        )
         mlflow.log_params({"source": "initial_upload", "model_file": str(_MODEL_PATH)})
 
         with tempfile.TemporaryDirectory() as tmp_dir:

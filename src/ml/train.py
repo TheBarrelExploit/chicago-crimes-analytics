@@ -99,9 +99,20 @@ def _optuna_objective(
     # Parent run is already active (called from within retrain's with-block).
     # We only need to open the nested child run here.
     with mlflow.start_run(run_name=f"trial_{trial.number}", nested=True):
-        mlflow.log_params({k: v for k, v in params.items()
-                           if k not in {"objective", "eval_metric", "tree_method",
-                                        "device", "random_state"}})
+        mlflow.log_params(
+            {
+                k: v
+                for k, v in params.items()
+                if k
+                not in {
+                    "objective",
+                    "eval_metric",
+                    "tree_method",
+                    "device",
+                    "random_state",
+                }
+            }
+        )
         clf = XGBClassifier(**params)
         cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
         proba = cross_val_predict(clf, X, y, cv=cv, method="predict_proba")[:, 1]
@@ -143,7 +154,9 @@ def retrain(force: bool = False) -> dict[str, object]:
         [f"{cfg.r2_account_id.get_secret_value()}.r2.cloudflarestorage.com"],
     )
     conn.execute("SET s3_access_key_id=?", [cfg.r2_access_key_id.get_secret_value()])
-    conn.execute("SET s3_secret_access_key=?", [cfg.r2_secret_access_key.get_secret_value()])
+    conn.execute(
+        "SET s3_secret_access_key=?", [cfg.r2_secret_access_key.get_secret_value()]
+    )
     conn.execute("SET s3_region='auto';")
     conn.execute("SET s3_url_style='path';")
 
@@ -196,15 +209,19 @@ def retrain(force: bool = False) -> dict[str, object]:
         # 5. Evaluate on held-out test set
         test_proba = final_clf.predict_proba(X_test)[:, 1]
         new_roc_auc = float(roc_auc_score(y_test, test_proba))
-        mlflow.log_metrics({
-            "roc_auc_cv_best": best_cv_roc_auc,
-            "roc_auc_test": new_roc_auc,
-        })
+        mlflow.log_metrics(
+            {
+                "roc_auc_cv_best": best_cv_roc_auc,
+                "roc_auc_test": new_roc_auc,
+            }
+        )
 
         # 6. Compare vs production model
         client = mlflow.tracking.MlflowClient()
         try:
-            prod_version = client.get_model_version_by_alias("arrest-predictor", "Production")
+            prod_version = client.get_model_version_by_alias(
+                "arrest-predictor", "Production"
+            )
             prod_run = client.get_run(prod_version.run_id or "")
             prod_roc_auc = float(prod_run.data.metrics.get("roc_auc_test", 0.0))
         except Exception as e:
@@ -232,7 +249,9 @@ def retrain(force: bool = False) -> dict[str, object]:
                 registered_model_name="arrest-predictor",
             )
             version = model_info.registered_model_version
-            client.set_registered_model_alias("arrest-predictor", "Production", str(version))
+            client.set_registered_model_alias(
+                "arrest-predictor", "Production", str(version)
+            )
             logger.info("New model registered as Production (version %s)", version)
             promoted = True
         else:

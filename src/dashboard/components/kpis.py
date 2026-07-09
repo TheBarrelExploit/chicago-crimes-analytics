@@ -88,8 +88,12 @@ def render_kpis(
     domestic: bool | None = None,
 ) -> None:
     """Renderiza los 4 KPIs principales con sparklines y gauge."""
-    kpis = manager.get_kpis(year_start, year_end, community_area, primary_type, domestic)
-    df_year = manager.get_crimes_by_year(year_start, year_end, community_area, primary_type, domestic)
+    kpis = manager.get_kpis(
+        year_start, year_end, community_area, primary_type, domestic
+    )
+    df_year = manager.get_crimes_by_year(
+        year_start, year_end, community_area, primary_type, domestic
+    )
 
     crimes_series = df_year["total_crimes"].to_list()
     arrests_series = df_year["total_arrests"].to_list()

@@ -50,7 +50,9 @@ def check_drift_from_dataframes(
         share_of_drifted_columns, number_of_drifted_columns,
         number_of_columns, dataset_drift.
     """
-    cols = [c for c in _DRIFT_COLUMNS if c in reference.columns and c in current.columns]
+    cols = [
+        c for c in _DRIFT_COLUMNS if c in reference.columns and c in current.columns
+    ]
     report = Report(metrics=[DataDriftPreset()])
     report.run(reference_data=reference[cols], current_data=current[cols])
     result = report.as_dict()
@@ -146,14 +148,16 @@ def check_drift(
     raw["domestic_int"] = raw["domestic"].astype(int)
     raw["is_night"] = raw["hour"].isin(NIGHT_HOURS).astype(int)
     raw["is_weekend"] = (raw["weekday"] >= 5).astype(int)
-    raw = raw.rename(columns={
-        "year": "Year",
-        "district": "District",
-        "community_area": "Community Area",
-        "latitude": "Latitude",
-        "beat": "Beat",
-        "longitude": "Longitude",
-    })
+    raw = raw.rename(
+        columns={
+            "year": "Year",
+            "district": "District",
+            "community_area": "Community Area",
+            "latitude": "Latitude",
+            "beat": "Beat",
+            "longitude": "Longitude",
+        }
+    )
 
     reference = raw[raw["day"] < cutoff_30][_DRIFT_COLUMNS]
     current = raw[raw["day"] >= cutoff_30][_DRIFT_COLUMNS]

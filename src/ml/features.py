@@ -6,17 +6,19 @@ import duckdb
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 
-FBI_INDEX_CRIMES: frozenset[str] = frozenset({
-    "HOMICIDE",
-    "CRIMINAL SEXUAL ASSAULT",
-    "ROBBERY",
-    "AGGRAVATED ASSAULT",
-    "AGGRAVATED BATTERY",
-    "BURGLARY",
-    "THEFT",
-    "MOTOR VEHICLE THEFT",
-    "ARSON",
-})
+FBI_INDEX_CRIMES: frozenset[str] = frozenset(
+    {
+        "HOMICIDE",
+        "CRIMINAL SEXUAL ASSAULT",
+        "ROBBERY",
+        "AGGRAVATED ASSAULT",
+        "AGGRAVATED BATTERY",
+        "BURGLARY",
+        "THEFT",
+        "MOTOR VEHICLE THEFT",
+        "ARSON",
+    }
+)
 
 NIGHT_HOURS: frozenset[int] = frozenset({22, 23, 0, 1, 2, 3, 4, 5})
 
@@ -101,14 +103,16 @@ def build_features(
     raw["primary_type_enc"] = le_primary.transform(raw["primary_type"])
     raw["location_enc"] = le_location.transform(raw["location_description"])
 
-    raw = raw.rename(columns={
-        "year": "Year",
-        "district": "District",
-        "community_area": "Community Area",
-        "latitude": "Latitude",
-        "beat": "Beat",
-        "longitude": "Longitude",
-    })
+    raw = raw.rename(
+        columns={
+            "year": "Year",
+            "district": "District",
+            "community_area": "Community Area",
+            "latitude": "Latitude",
+            "beat": "Beat",
+            "longitude": "Longitude",
+        }
+    )
 
     X = raw[FEATURE_COLS].copy()  # noqa: N806
     y = raw["arrest"].astype(int)

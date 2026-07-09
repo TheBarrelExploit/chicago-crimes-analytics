@@ -47,7 +47,9 @@ class Settings(BaseSettings):
     )
 
     # --- Cloudflare R2 ---
-    cloudflare_token: SecretStr | None = Field(default=None, description="Cloudflare API token")
+    cloudflare_token: SecretStr | None = Field(
+        default=None, description="Cloudflare API token"
+    )
     r2_account_id: SecretStr = Field(description="Cloudflare Account ID")
     r2_access_key_id: SecretStr = Field(description="R2 Access Key ID")
     r2_secret_access_key: SecretStr = Field(description="R2 Secret Access Key")
@@ -75,7 +77,9 @@ class Settings(BaseSettings):
     mlflow_tracking_uri: SecretStr = Field(description="MLflow tracking URI en DagsHub")
 
     # --- MotherDuck ---
-    motherduck_token: SecretStr | None = Field(default=None, description="MotherDuck authentication token")
+    motherduck_token: SecretStr | None = Field(
+        default=None, description="MotherDuck authentication token"
+    )
     motherduck_database: str = Field(
         default="chicago_crimes",
         description="MotherDuck database name",
@@ -83,7 +87,9 @@ class Settings(BaseSettings):
 
     # --- Modal ---
     modal_token_id: SecretStr | None = Field(default=None, description="Token ID Modal")
-    modal_token_secret: SecretStr | None = Field(default=None, description="Secret Token Modal")
+    modal_token_secret: SecretStr | None = Field(
+        default=None, description="Secret Token Modal"
+    )
 
     # --- API ---
     api_host: str = Field(default="0.0.0.0", description="Host for the API server")

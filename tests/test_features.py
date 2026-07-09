@@ -19,16 +19,24 @@ from src.ml.features import (
 def _write_synthetic_parquet(path: Path) -> None:
     data = {
         "primary_type": ["THEFT", "HOMICIDE", "BATTERY", "ROBBERY", "THEFT"],
-        "location_description": ["STREET", "RESIDENCE", "SIDEWALK", "STREET", "SIDEWALK"],
+        "location_description": [
+            "STREET",
+            "RESIDENCE",
+            "SIDEWALK",
+            "STREET",
+            "SIDEWALK",
+        ],
         "domestic": [True, False, True, False, False],
         "year": [2020, 2021, 2022, 2023, 2024],
-        "date": pd.to_datetime([
-            "2020-03-15 22:00:00",
-            "2021-06-10 12:00:00",
-            "2022-11-20 08:00:00",
-            "2023-01-05 03:00:00",
-            "2024-07-14 17:30:00",
-        ]),
+        "date": pd.to_datetime(
+            [
+                "2020-03-15 22:00:00",
+                "2021-06-10 12:00:00",
+                "2022-11-20 08:00:00",
+                "2023-01-05 03:00:00",
+                "2024-07-14 17:30:00",
+            ]
+        ),
         "hour": [22, 12, 8, 3, 17],
         "district": [1, 2, 3, 4, 5],
         "community_area": [8, 12, 25, 32, 44],
@@ -76,7 +84,9 @@ def test_build_features_reuses_encoders(parquet_path: Path) -> None:
     _, _, le_primary, le_location = build_features(str(parquet_path), conn)
     # Second call reusing encoders should not fail
     conn2 = duckdb.connect(":memory:")
-    X2, _, le_p2, le_l2 = build_features(str(parquet_path), conn2, le_primary, le_location)
+    X2, _, le_p2, le_l2 = build_features(
+        str(parquet_path), conn2, le_primary, le_location
+    )
     assert list(X2.columns) == FEATURE_COLS
     assert le_p2 is le_primary  # same object returned
 
