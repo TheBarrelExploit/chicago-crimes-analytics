@@ -82,9 +82,10 @@ fixable = ["ALL"]
     "S101",        # assert en tests
     "ARG001",      # argumentos no usados en fixtures
     "PLR2004",     # números mágicos
-    "D100", 
-    "D101", 
-    "D102", 
+    "N806",        # X/y son convención ML para feature matrix / target
+    "D100",
+    "D101",
+    "D102",
     "D103",
 ]
 

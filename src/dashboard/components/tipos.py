@@ -17,8 +17,8 @@ from src.storage.duckdb_manager import DuckDBManager
 @st.fragment
 def render_tipos(
     manager: DuckDBManager,
-    year_start: int,
-    year_end: int,
+    _year_start: int,
+    _year_end: int,
 ) -> None:
     """Renderiza top 12 tipos de crimen y split doméstico."""
     st.markdown("<p class='section-title'>Tipos de crimen</p>", unsafe_allow_html=True)

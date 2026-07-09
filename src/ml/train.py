@@ -126,10 +126,9 @@ def retrain(force: bool = False) -> dict[str, object]:
     from sklearn.model_selection import train_test_split
     from xgboost import XGBClassifier
 
+    from src.config import load_settings
     from src.ml.drift import check_drift
     from src.ml.features import build_features
-
-    from src.config import load_settings
 
     _configure_mlflow()
 

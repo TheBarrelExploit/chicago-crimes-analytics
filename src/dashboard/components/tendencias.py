@@ -3,16 +3,16 @@
 from __future__ import annotations
 
 import streamlit as st
-from plotly.graph_objects import Bar, Scatter, Figure
+from plotly.graph_objects import Bar, Figure, Scatter
 from plotly.subplots import make_subplots
 
-from src.storage.duckdb_manager import DuckDBManager
 from src.dashboard.components.styles import (
-    PLOTLY_LAYOUT,
+    COLOR_GRAY,
     COLOR_RED,
     COLOR_TEAL,
-    COLOR_GRAY,
+    PLOTLY_LAYOUT,
 )
+from src.storage.duckdb_manager import DuckDBManager
 
 
 @st.fragment

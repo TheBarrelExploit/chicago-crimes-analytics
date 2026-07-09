@@ -190,12 +190,10 @@ def render(manager: DuckDBManager) -> None:
     # ── Mapa + Tendencias ────────────────────────────────────────────────
     col_map, col_trend = st.columns(2)
 
-    with col_map:
-        with st.container(border=True):
-            render_mapa(manager, year_start, year_end)
+    with col_map, st.container(border=True):
+        render_mapa(manager, year_start, year_end)
 
-    with col_trend:
-        with st.container(border=True):
+    with col_trend, st.container(border=True):
             st.markdown(
                 "<p class='section-title'>Crímenes y Tasa de Arresto por Año</p>",
                 unsafe_allow_html=True,
