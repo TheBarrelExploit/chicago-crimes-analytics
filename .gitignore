@@ -223,5 +223,8 @@ models/
 *.parquet
 *.db
 *.json
+docs/
+.superpowers/
+.claude/
 
 #uv
