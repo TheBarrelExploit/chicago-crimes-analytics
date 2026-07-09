@@ -132,8 +132,8 @@ def build_single_record(
     Returns:
         DataFrame with exactly the columns in FEATURE_COLS.
     """
-    hour = int(record["hour"])  # type: ignore[arg-type]
-    weekday = int(record["weekday"])  # type: ignore[arg-type]
+    hour = int(record["hour"])  # type: ignore[call-overload]
+    weekday = int(record["weekday"])  # type: ignore[call-overload]
     row = {
         "is_index_crime": int(str(record["primary_type"]) in FBI_INDEX_CRIMES),
         "primary_type_enc": int(le_primary.transform([record["primary_type"]])[0]),

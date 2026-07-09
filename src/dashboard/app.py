@@ -10,7 +10,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 import streamlit as st
-from streamlit_option_menu import option_menu  # type: ignore[import-untyped]
+from streamlit_option_menu import option_menu
 
 from src.dashboard.components.styles import CSS
 from src.dashboard.pages import analytics, prediction

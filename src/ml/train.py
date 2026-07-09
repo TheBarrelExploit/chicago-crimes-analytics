@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import logging
-import os
 import pickle
 import tempfile
 from pathlib import Path
@@ -49,14 +48,20 @@ app = modal.App("chicago-crimes-retrain")
 
 
 def _configure_mlflow() -> None:
-    """Set up DagsHub auth and MLflow tracking URI from env vars."""
+    """Set up DagsHub auth and MLflow tracking URI from settings."""
+    import os
+
     import dagshub
     import mlflow
 
-    dagshub.auth.add_app_token(token=os.environ["DAGSHUB_TOKEN"])
-    os.environ["MLFLOW_TRACKING_USERNAME"] = os.environ["DAGSHUB_USERNAME"]
-    os.environ["MLFLOW_TRACKING_PASSWORD"] = os.environ["DAGSHUB_TOKEN"]
-    mlflow.set_tracking_uri(os.environ["MLFLOW_TRACKING_URI"])
+    from src.config import load_settings
+
+    cfg = load_settings()
+    token = cfg.dagshub_token.get_secret_value()
+    os.environ["MLFLOW_TRACKING_USERNAME"] = cfg.dagshub_username.get_secret_value()
+    os.environ["MLFLOW_TRACKING_PASSWORD"] = token
+    dagshub.auth.add_app_token(token=token)  # type: ignore[attr-defined]
+    mlflow.set_tracking_uri(cfg.mlflow_tracking_uri.get_secret_value())
     mlflow.set_experiment("chicago-crimes-retraining")
 
 
@@ -112,7 +117,7 @@ def _optuna_objective(
     image=_image,
     secrets=_secrets,
 )
-def retrain(force: bool = False) -> dict:
+def retrain(force: bool = False) -> dict[str, object]:
     """Main retraining function — runs drift check then Optuna + MLflow."""
     import duckdb
     import mlflow
@@ -124,19 +129,22 @@ def retrain(force: bool = False) -> dict:
     from src.ml.drift import check_drift
     from src.ml.features import build_features
 
+    from src.config import load_settings
+
     _configure_mlflow()
 
-    parquet_url = (
-        f"s3://{os.environ['R2_BUCKET_NAME']}/crimes_full.parquet"
-    )
+    cfg = load_settings()
+    parquet_url = f"s3://{cfg.r2_bucket_name}/crimes_full.parquet"
 
     # DuckDB connection with R2 credentials
     conn = duckdb.connect(":memory:")
     conn.execute("INSTALL httpfs; LOAD httpfs;")
-    conn.execute("SET s3_endpoint=?",
-                 [f"{os.environ['R2_ACCOUNT_ID']}.r2.cloudflarestorage.com"])
-    conn.execute("SET s3_access_key_id=?", [os.environ["R2_ACCESS_KEY_ID"]])
-    conn.execute("SET s3_secret_access_key=?", [os.environ["R2_SECRET_ACCESS_KEY"]])
+    conn.execute(
+        "SET s3_endpoint=?",
+        [f"{cfg.r2_account_id.get_secret_value()}.r2.cloudflarestorage.com"],
+    )
+    conn.execute("SET s3_access_key_id=?", [cfg.r2_access_key_id.get_secret_value()])
+    conn.execute("SET s3_secret_access_key=?", [cfg.r2_secret_access_key.get_secret_value()])
     conn.execute("SET s3_region='auto';")
     conn.execute("SET s3_url_style='path';")
 
@@ -198,7 +206,7 @@ def retrain(force: bool = False) -> dict:
         client = mlflow.tracking.MlflowClient()
         try:
             prod_version = client.get_model_version_by_alias("arrest-predictor", "Production")
-            prod_run = client.get_run(prod_version.run_id)
+            prod_run = client.get_run(prod_version.run_id or "")
             prod_roc_auc = float(prod_run.data.metrics.get("roc_auc_test", 0.0))
         except Exception as e:
             logger.warning("Could not fetch production model metrics: %s", e)

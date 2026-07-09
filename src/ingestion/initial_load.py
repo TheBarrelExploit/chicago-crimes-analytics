@@ -29,6 +29,7 @@ import argparse
 import logging
 import time
 from pathlib import Path
+from typing import Literal
 
 import polars as pl
 
@@ -50,7 +51,7 @@ R2_KEY_FULL = "crimes_full.parquet"
 R2_KEY_MONTHLY = "crimes_by_month/{year}_{month:02d}.parquet"
 
 # Compresión para todos los Parquets
-PARQUET_COMPRESSION = "zstd"
+PARQUET_COMPRESSION: Literal["zstd"] = "zstd"
 PARQUET_COMPRESSION_LEVEL = 3
 
 

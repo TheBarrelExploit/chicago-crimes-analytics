@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from datetime import UTC, datetime, timedelta
+from typing import Any
 
 import duckdb
 import pandas as pd
@@ -36,7 +37,7 @@ def check_drift_from_dataframes(
     reference: pd.DataFrame,
     current: pd.DataFrame,
     threshold: float = 0.2,
-) -> tuple[bool, dict]:
+) -> tuple[bool, dict[str, Any]]:
     """Runs Evidently DatasetDrift on two DataFrames.
 
     Args:
@@ -55,7 +56,7 @@ def check_drift_from_dataframes(
     result = report.as_dict()
 
     # Navigate Evidently result structure
-    drift_result: dict[str, object] = {}
+    drift_result: dict[str, Any] = {}
     for metric in result.get("metrics", []):
         if "DatasetDriftMetric" in str(metric.get("metric", "")):
             drift_result = metric.get("result", {})
@@ -92,7 +93,7 @@ def check_drift(
     parquet_url: str,
     conn: duckdb.DuckDBPyConnection,
     threshold: float = 0.2,
-) -> tuple[bool, dict]:
+) -> tuple[bool, dict[str, Any]]:
     """Downloads last 60 days from R2 and runs drift check.
 
     Splits into reference (days 31–60 ago) and current (last 30 days).

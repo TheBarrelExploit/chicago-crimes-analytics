@@ -117,6 +117,8 @@ def _make_motherduck_connection() -> duckdb.DuckDBPyConnection:
     Requiere MOTHERDUCK_TOKEN en las variables de entorno.
     """
     cfg = load_settings()
+    if cfg.motherduck_token is None:
+        raise ValueError("MOTHERDUCK_TOKEN no está configurado en el entorno")
     conn = duckdb.connect(
         database=f"md:{cfg.motherduck_database}",
         config={"motherduck_token": cfg.motherduck_token.get_secret_value()},

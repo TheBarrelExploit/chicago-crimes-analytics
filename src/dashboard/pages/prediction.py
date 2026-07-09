@@ -97,7 +97,7 @@ def render(manager: DuckDBManager) -> None:
 
     # Load model (cached) — show error if not yet uploaded to DagsHub
     try:
-        from src.ml.predict import load_production_model, predict_arrest_probability
+        from src.ml.predict import load_production_model
 
         booster, le_primary, le_location = load_production_model()
         crime_types = sorted(le_primary.classes_.tolist())
@@ -121,21 +121,48 @@ def render(manager: DuckDBManager) -> None:
             "<p class='section-title'>Parámetros del crimen</p>", unsafe_allow_html=True
         )
         primary_type = st.selectbox(
-            "Tipo de crimen", crime_types, disabled=not model_available, key="pred_type"
+            "Tipo de crimen",
+            crime_types,
+            disabled=not model_available,
+            key="pred_type",
+            help=(
+                "Clasificación oficial del crimen según el CPD. "
+                "Ej: THEFT = robo, BATTERY = agresión física, "
+                "ASSAULT = amenaza o intento de agresión, BURGLARY = allanamiento."
+            ),
         )
         location_description = st.selectbox(
-            "Lugar", location_types, disabled=not model_available, key="pred_loc"
+            "Lugar",
+            location_types,
+            disabled=not model_available,
+            key="pred_loc",
+            help=(
+                "Tipo de lugar físico donde ocurrió el crimen. "
+                "Ej: STREET = calle pública, RESIDENCE = vivienda, "
+                "APARTMENT = departamento, PARKING LOT = estacionamiento."
+            ),
         )
         area_name = st.selectbox(
-            "Community Area", area_names, disabled=not model_available, key="pred_area"
+            "Community Area",
+            area_names,
+            disabled=not model_available,
+            key="pred_area",
+            help=(
+                "Barrio oficial de Chicago donde ocurrió el crimen. "
+                "La ciudad está dividida en 77 community areas con límites geográficos fijos."
+            ),
         )
         district = st.number_input(
-            "Distrito",
+            "Distrito policial",
             min_value=1,
             max_value=25,
             value=1,
             disabled=not model_available,
             key="pred_district",
+            help=(
+                "Número del distrito del CPD responsable de la zona (1–25). "
+                "Cada distrito tiene su propia comisaría y agrupa varios beats."
+            ),
         )
         beat = st.number_input(
             "Beat",
@@ -145,6 +172,10 @@ def render(manager: DuckDBManager) -> None:
             step=1,
             disabled=not model_available,
             key="pred_beat",
+            help=(
+                "Unidad geográfica más pequeña de patrullaje. "
+                "Los primeros dígitos identifican el distrito (ej. beat 1113 → distrito 11)."
+            ),
         )
         hour = st.slider(
             "Hora del día",
@@ -153,18 +184,30 @@ def render(manager: DuckDBManager) -> None:
             value=12,
             disabled=not model_available,
             key="pred_hour",
+            help=(
+                "Hora en formato 24h (0 = medianoche, 12 = mediodía, 23 = 11 PM). "
+                "Los crímenes nocturnos (10 PM–5 AM) tienen patrones de arresto distintos."
+            ),
         )
         domestic = st.toggle(
             "¿Crimen doméstico?",
             value=False,
             disabled=not model_available,
             key="pred_domestic",
+            help=(
+                "Activa si el crimen involucra a miembros del mismo hogar o pareja sentimental. "
+                "Implica un protocolo de respuesta policial diferente."
+            ),
         )
         crime_date = st.date_input(
             "Fecha del crimen",
             value=datetime.date.today(),
             disabled=not model_available,
             key="pred_date",
+            help=(
+                "Fecha en que ocurrió el crimen. Se usa para derivar el mes, "
+                "trimestre y día de la semana, que influyen en los patrones de arresto."
+            ),
         )
         predict_btn = st.button(
             "Predecir probabilidad de arresto",
@@ -197,6 +240,8 @@ def render(manager: DuckDBManager) -> None:
             }
 
             try:
+                from src.ml.predict import predict_arrest_probability
+
                 probability = predict_arrest_probability(record)
                 st.plotly_chart(
                     _arrest_gauge(probability),

@@ -11,9 +11,9 @@ from src.storage.duckdb_manager import DuckDBManager
 _COLOR_ORANGE = "#f5a623"
 
 
-def fmt_number(n: int) -> str:
+def fmt_number(n: int | float) -> str:
     """Formatea número con separadores de miles."""
-    return f"{n:,}"
+    return f"{int(n):,}"
 
 
 def fmt_pct(p: float) -> str:
@@ -97,53 +97,49 @@ def render_kpis(
 
     col1, col2, col3, col4 = st.columns(4)
 
-    with col1:
-        with st.container(border=True):
-            st.markdown(
-                f"""<div class='kpi-label'>Total Crímenes</div>
-                <div class='kpi-value accent-red'>{fmt_number(kpis["total_crimes"])}</div>""",
-                unsafe_allow_html=True,
-            )
-            st.plotly_chart(
-                _sparkline(crimes_series, COLOR_RED),
-                width="stretch",
-                config={"displayModeBar": False},
-            )
+    with col1, st.container(border=True):
+        st.markdown(
+            f"""<div class='kpi-label'>Total Crímenes</div>
+            <div class='kpi-value accent-red'>{fmt_number(kpis["total_crimes"])}</div>""",
+            unsafe_allow_html=True,
+        )
+        st.plotly_chart(
+            _sparkline(crimes_series, COLOR_RED),
+            width="stretch",
+            config={"displayModeBar": False},
+        )
 
-    with col2:
-        with st.container(border=True):
-            st.markdown(
-                f"""<div class='kpi-label'>Total Arrestos</div>
-                <div class='kpi-value accent-teal'>{fmt_number(kpis["total_arrests"])}</div>""",
-                unsafe_allow_html=True,
-            )
-            st.plotly_chart(
-                _sparkline(arrests_series, COLOR_TEAL),
-                width="stretch",
-                config={"displayModeBar": False},
-            )
+    with col2, st.container(border=True):
+        st.markdown(
+            f"""<div class='kpi-label'>Total Arrestos</div>
+            <div class='kpi-value accent-teal'>{fmt_number(kpis["total_arrests"])}</div>""",
+            unsafe_allow_html=True,
+        )
+        st.plotly_chart(
+            _sparkline(arrests_series, COLOR_TEAL),
+            width="stretch",
+            config={"displayModeBar": False},
+        )
 
-    with col3:
-        with st.container(border=True):
-            st.markdown(
-                f"""<div class='kpi-label'>Total Doméstico</div>
-                <div class='kpi-value' style='color:{_COLOR_ORANGE}'>{fmt_number(kpis["total_domestic"])}</div>""",
-                unsafe_allow_html=True,
-            )
-            st.plotly_chart(
-                _sparkline(domestic_series, _COLOR_ORANGE),
-                width="stretch",
-                config={"displayModeBar": False},
-            )
+    with col3, st.container(border=True):
+        st.markdown(
+            f"""<div class='kpi-label'>Total Doméstico</div>
+            <div class='kpi-value' style='color:{_COLOR_ORANGE}'>{fmt_number(kpis["total_domestic"])}</div>""",
+            unsafe_allow_html=True,
+        )
+        st.plotly_chart(
+            _sparkline(domestic_series, _COLOR_ORANGE),
+            width="stretch",
+            config={"displayModeBar": False},
+        )
 
-    with col4:
-        with st.container(border=True):
-            st.markdown(
-                "<div class='kpi-label'>Tasa de Arresto</div>",
-                unsafe_allow_html=True,
-            )
-            st.plotly_chart(
-                _gauge(kpis["arrest_rate"], COLOR_TEAL),
-                width="stretch",
-                config={"displayModeBar": False},
-            )
+    with col4, st.container(border=True):
+        st.markdown(
+            "<div class='kpi-label'>Tasa de Arresto</div>",
+            unsafe_allow_html=True,
+        )
+        st.plotly_chart(
+            _gauge(kpis["arrest_rate"], COLOR_TEAL),
+            width="stretch",
+            config={"displayModeBar": False},
+        )
