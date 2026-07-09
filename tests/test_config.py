@@ -13,6 +13,7 @@ FAKE_ENV = {
     "R2_ACCOUNT_ID": "myaccountid",
     "R2_ACCESS_KEY_ID": "fake-key",
     "R2_SECRET_ACCESS_KEY": "fake-secret",
+    "MOTHERDUCK_TOKEN": "fake-md-token",
     "DAGSHUB_USERNAME": "user",
     "DAGSHUB_TOKEN": "token",
     "MLFLOW_TRACKING_URI": "http://localhost:5000",
@@ -98,7 +99,7 @@ def test_invalid_port_raises() -> None:
         patch.dict(os.environ, {**FAKE_ENV, "API_PORT": "99999"}, clear=True),
         pytest.raises(ValidationError),
     ):
-        Settings()
+        Settings()  # type: ignore[call-arg]
 
 
 def test_missing_required_field_raises() -> None:
@@ -108,7 +109,7 @@ def test_missing_required_field_raises() -> None:
         patch.dict(os.environ, missing_field_env, clear=True),
         pytest.raises(ValidationError) as exc_info,
     ):
-        Settings()
+        Settings(_env_file=None)  # type: ignore[call-arg]
 
     assert "cloudflare_token" in str(exc_info.value).lower()
 

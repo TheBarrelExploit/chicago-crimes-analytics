@@ -33,6 +33,7 @@ def fake_settings() -> Settings:
         "R2_ACCOUNT_ID": "fake-account-id",
         "R2_ACCESS_KEY_ID": "fake-access-key",
         "R2_SECRET_ACCESS_KEY": "fake-secret-key",
+        "MOTHERDUCK_TOKEN": "fake-md-token",
         "DAGSHUB_USERNAME": "fake-user",
         "DAGSHUB_TOKEN": "fake-dagshub-token",
         "MLFLOW_TRACKING_URI": "http://fake-mlflow",
@@ -40,7 +41,7 @@ def fake_settings() -> Settings:
         "MODAL_TOKEN_SECRET": "fake-modal-secret",
     }
     with patch.dict(os.environ, env_vars, clear=True):
-        return Settings()
+        return Settings()  # type: ignore[call-arg]
 
 
 @pytest.fixture()
