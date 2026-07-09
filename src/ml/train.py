@@ -86,7 +86,6 @@ def _optuna_objective(
         "eval_metric": "auc",
         "tree_method": "hist",
         "device": "cuda",
-        "use_label_encoder": False,
         "random_state": 42,
     }
 
@@ -95,7 +94,7 @@ def _optuna_objective(
     with mlflow.start_run(run_name=f"trial_{trial.number}", nested=True):
         mlflow.log_params({k: v for k, v in params.items()
                            if k not in {"objective", "eval_metric", "tree_method",
-                                        "device", "use_label_encoder", "random_state"}})
+                                        "device", "random_state"}})
         clf = XGBClassifier(**params)
         cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
         proba = cross_val_predict(clf, X, y, cv=cv, method="predict_proba")[:, 1]
@@ -180,7 +179,6 @@ def retrain(force: bool = False) -> dict:
             eval_metric="auc",
             tree_method="hist",
             device="cuda",
-            use_label_encoder=False,
             random_state=42,
         )
         final_clf.fit(X_train, y_train)
@@ -200,7 +198,8 @@ def retrain(force: bool = False) -> dict:
             prod_version = client.get_model_version_by_alias("arrest-predictor", "Production")
             prod_run = client.get_run(prod_version.run_id)
             prod_roc_auc = float(prod_run.data.metrics.get("roc_auc_test", 0.0))
-        except Exception:
+        except Exception as e:
+            logger.warning("Could not fetch production model metrics: %s", e)
             prod_roc_auc = 0.0
 
         logger.info(
