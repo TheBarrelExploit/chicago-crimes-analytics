@@ -37,6 +37,8 @@ dev = [
 [tool.mypy]
 strict = true
 plugins = ["pydantic.mypy"]
+mypy_path = ["stubs"]
+ignore_missing_imports = true
 
 
 [tool.ruff]
