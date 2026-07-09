@@ -13,8 +13,8 @@ from evidently.legacy.report import Report
 logger = logging.getLogger(__name__)
 
 _DRIFT_COLUMNS = [
-    "primary_type_enc",
-    "location_enc",
+    "primary_type",
+    "location_description",
     "domestic_int",
     "Year",
     "hour",
@@ -55,11 +55,17 @@ def check_drift_from_dataframes(
     result = report.as_dict()
 
     # Navigate Evidently result structure
-    drift_result: dict = {}
+    drift_result: dict[str, object] = {}
     for metric in result.get("metrics", []):
         if "DatasetDriftMetric" in str(metric.get("metric", "")):
             drift_result = metric.get("result", {})
             break
+
+    if not drift_result:
+        logger.warning(
+            "Evidently DatasetDriftMetric not found in report — "
+            "check Evidently version compatibility. Treating as no drift."
+        )
 
     share = float(drift_result.get("share_of_drifted_columns", 0.0))
     n_drifted = int(drift_result.get("number_of_drifted_columns", 0))
@@ -157,7 +163,11 @@ def check_drift(
             len(reference),
             len(current),
         )
-        return False, {"share_of_drifted_columns": 0.0, "number_of_drifted_columns": 0,
-                       "number_of_columns": len(_DRIFT_COLUMNS), "dataset_drift": False}
+        return False, {
+            "share_of_drifted_columns": 0.0,
+            "number_of_drifted_columns": 0,
+            "number_of_columns": len(_DRIFT_COLUMNS),
+            "dataset_drift": False,
+        }
 
     return check_drift_from_dataframes(reference, current, threshold)

@@ -5,12 +5,15 @@ import pandas as pd
 
 from src.ml.drift import check_drift_from_dataframes
 
+_CRIME_TYPES = ["THEFT", "BATTERY", "ROBBERY", "ASSAULT", "BURGLARY"]
+_LOCATIONS = ["STREET", "RESIDENCE", "APARTMENT", "SIDEWALK", "PARKING LOT"]
+
 
 def _make_df(n: int = 200, seed: int = 0) -> pd.DataFrame:
     rng = np.random.default_rng(seed)
     return pd.DataFrame({
-        "primary_type_enc": rng.integers(0, 10, n),
-        "location_enc": rng.integers(0, 20, n),
+        "primary_type": rng.choice(_CRIME_TYPES, n),
+        "location_description": rng.choice(_LOCATIONS, n),
         "domestic_int": rng.integers(0, 2, n),
         "Year": rng.integers(2018, 2024, n),
         "hour": rng.integers(0, 24, n),
@@ -49,8 +52,8 @@ def test_drift_detected_shifted_distribution() -> None:
     current["Beat"] = 2500
     current["Latitude"] = 41.6
     current["Longitude"] = -87.9
-    current["primary_type_enc"] = 9
-    current["location_enc"] = 19
+    current["primary_type"] = "THEFT"
+    current["location_description"] = "STREET"
     current["Community Area"] = 77
     detected, report = check_drift_from_dataframes(reference, current)
     assert detected
