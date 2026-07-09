@@ -30,8 +30,13 @@ def upload_initial_model() -> None:
 
     cfg = load_settings()
 
-    # Auth
+    # Auth — add_app_token populates DagsHub's token cache; the env vars feed
+    # MLflow's REST client with HTTP Basic Auth for the same credentials.
+    import os
+
     dagshub.auth.add_app_token(token=cfg.dagshub_token.get_secret_value())
+    os.environ["MLFLOW_TRACKING_USERNAME"] = cfg.dagshub_username.get_secret_value()
+    os.environ["MLFLOW_TRACKING_PASSWORD"] = cfg.dagshub_token.get_secret_value()
     mlflow.set_tracking_uri(cfg.mlflow_tracking_uri.get_secret_value())
     mlflow.set_experiment("chicago-crimes-retraining")
 

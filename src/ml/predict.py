@@ -23,12 +23,16 @@ def _load_model_uncached() -> tuple[xgb.Booster, LabelEncoder, LabelEncoder]:
     Returns:
         Tuple of (booster, le_primary, le_location).
     """
+    import os
+
     import dagshub
 
     from src.config import load_settings
 
     cfg = load_settings()
     dagshub.auth.add_app_token(token=cfg.dagshub_token.get_secret_value())
+    os.environ["MLFLOW_TRACKING_USERNAME"] = cfg.dagshub_username.get_secret_value()
+    os.environ["MLFLOW_TRACKING_PASSWORD"] = cfg.dagshub_token.get_secret_value()
     mlflow.set_tracking_uri(cfg.mlflow_tracking_uri.get_secret_value())
 
     logger.info("Loading model arrest-predictor@Production from DagsHub...")

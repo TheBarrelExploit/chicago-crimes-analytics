@@ -54,6 +54,8 @@ def _configure_mlflow() -> None:
     import mlflow
 
     dagshub.auth.add_app_token(token=os.environ["DAGSHUB_TOKEN"])
+    os.environ["MLFLOW_TRACKING_USERNAME"] = os.environ["DAGSHUB_USERNAME"]
+    os.environ["MLFLOW_TRACKING_PASSWORD"] = os.environ["DAGSHUB_TOKEN"]
     mlflow.set_tracking_uri(os.environ["MLFLOW_TRACKING_URI"])
     mlflow.set_experiment("chicago-crimes-retraining")
 
