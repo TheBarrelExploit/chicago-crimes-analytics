@@ -110,7 +110,7 @@ def build_features(
         "longitude": "Longitude",
     })
 
-    X = raw[FEATURE_COLS].copy()
+    X = raw[FEATURE_COLS].copy()  # noqa: N806
     y = raw["arrest"].astype(int)
     return X, y, le_primary, le_location
 
@@ -132,13 +132,13 @@ def build_single_record(
     Returns:
         DataFrame with exactly the columns in FEATURE_COLS.
     """
-    hour: int = record["hour"]
-    weekday: int = record["weekday"]
+    hour = int(record["hour"])  # type: ignore[arg-type]
+    weekday = int(record["weekday"])  # type: ignore[arg-type]
     row = {
-        "is_index_crime": int(record["primary_type"] in FBI_INDEX_CRIMES),
+        "is_index_crime": int(str(record["primary_type"]) in FBI_INDEX_CRIMES),
         "primary_type_enc": int(le_primary.transform([record["primary_type"]])[0]),
         "location_enc": int(le_location.transform([record["location_description"]])[0]),
-        "domestic_int": int(record["domestic"]),
+        "domestic_int": int(bool(record["domestic"])),
         "Year": record["year"],
         "is_night": int(hour in NIGHT_HOURS),
         "hour": hour,
