@@ -104,14 +104,14 @@ def test_invalid_port_raises() -> None:
 
 def test_missing_required_field_raises() -> None:
     """Verify ValidationError when required field is missing."""
-    missing_field_env = {k: v for k, v in FAKE_ENV.items() if k != "CLOUDFLARE_TOKEN"}
+    missing_field_env = {k: v for k, v in FAKE_ENV.items() if k != "R2_ACCOUNT_ID"}
     with (
         patch.dict(os.environ, missing_field_env, clear=True),
         pytest.raises(ValidationError) as exc_info,
     ):
         Settings(_env_file=None)  # type: ignore[call-arg]
 
-    assert "cloudflare_token" in str(exc_info.value).lower()
+    assert "r2_account_id" in str(exc_info.value).lower()
 
 
 def test_computed_paths_with_default_base() -> None:
